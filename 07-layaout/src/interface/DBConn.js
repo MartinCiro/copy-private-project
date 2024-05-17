@@ -7,7 +7,7 @@ const dbauth = {
     host: config.ServerDB,
     port: config.PortDB,
     database: config.Database,
-    ssl: { rejectUnauthorized: true }
+    /* ssl: { rejectUnauthorized: true } */
 };
 /**
  * Método para conectarse a la base de datos de nexia automation

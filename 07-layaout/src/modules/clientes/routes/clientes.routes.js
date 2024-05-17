@@ -4,8 +4,8 @@ const bodyParser = require('body-parser');
 const { exec } = require('child_process');
 
 // api handlers
-const { crearClienteAPI, actualizarClienteAPI, listarClientesAPI, crearContratoAPI,
-    asignacionUsuariosAPI, getClientePageAPI, actualizarCalendarioAPI, listarFechasAPI, actualizarFechaAPI, crearAPI, crearEgresoAPI, crearRolAPI, crearPermisoAPI, deleteFechasAPI, sumarFechasAPI } = require('../api/clientes.api');
+const { listarPermiso, actualizarClienteAPI, crearContratoAPI,
+    asignacionUsuariosAPI, getClientePageAPI, actualizarPermiso, crearRolAPI, crearPermisoAPI, eliminarPermiso, sumarFechasAPI } = require('../api/clientes.api');
 const { isAuthenticatedMW, checkPermissions } = require('../../auth/api/auth.api');
 
 
@@ -76,20 +76,21 @@ router.delete('/clientes/usuario', isAuthenticatedMW, checkPermissions([1, 2]), 
 
 /* router.get('/', docs); */
 
-router.get('/fechas/', listarFechasAPI);
+router.post('/permiso', crearPermisoAPI);
 
-router.patch('/fechas/', actualizarFechaAPI);
+router.get('/permiso', listarPermisoAPI); 
 
-router.delete('/fechas/', deleteFechasAPI);
+router.patch('/permiso', actualizarPermisoAPI); 
 
-router.get('/fechas/suma', sumarFechasAPI);
+router.delete('/permiso', eliminarPermisoAPI);
 
-router.post('/clientes/RUT', actualizarCalendarioAPI);
+router.post('/rol', crearRolAPI);
 
-router.post('/crear', crearAPI);
+router.get('/rol', listarRolAPI); /* listarRol */
 
-router.post('/crearRol', crearRolAPI);
+router.patch('/rol', actualizarRolAPI); /* actualizarRol */
 
-router.post('/crearPermiso', crearPermisoAPI);
+router.delete('/rol', eliminarRol); /* eliminarPermiso */
+
 
 module.exports = router;
