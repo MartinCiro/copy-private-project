@@ -7,6 +7,10 @@ const {
   getListarRol,
   actualizaRol,
   eliminarRoles,
+  crearUsuario, 
+  listarUsuario, 
+  actualizarUsuario, 
+  eliminarUsuario,
 } = require("../controller/clientes.controller");
 const ResponseBody = require("../../../shared/model/ResponseBody.model");
 
@@ -185,6 +189,91 @@ const eliminarRolAPI = async (req, res) => {
   return res.json(message);
 };
 
+const crearUsuarioAPI = async (req, res) => {
+  const { nombreCompleto, email, cel, f_Naci, pass, nomUser } = req.body; 
+  try {
+    const resultado = await crearUsuario({ nombreCompleto, email, cel, f_Naci, pass, nomUser });
+    message = new ResponseBody(true, 200, resultado);
+  } catch (error) {
+    if (error.data) {
+      message = new ResponseBody(error.ok, error.status_cod, error.data);
+    } else {
+      message = new ResponseBody(false, 500, {
+        message:
+          "Ha ocurrido un error inesperado. Por favor inténtelo nuevamente más tarde",
+      });
+    }
+  }
+
+  return res.json(message);
+};
+
+const listarUsuarioAPI = async (req, res) => {
+  const {nomUser} = req.body;
+  let message;
+  try {
+    const resultado = await listarUsuario(nomUser);
+    message = new ResponseBody(true, 200, resultado);
+  } catch (error) {
+    if (error.status_cod) {
+      message = new ResponseBody(error.ok, error.status_cod, error.data);
+    } else {
+      console.log(error);
+      message = new ResponseBody(
+        false,
+        500,
+        "Ocurrió un error en el proceso para listar las fechas"
+      );
+    }
+  }
+
+  return res.json(message);
+};
+
+const actualizarUsuarioAPI = async (req, res) => {
+  const { nombreCompleto, email, cel, f_Naci, pass, nomUser, fechaRegistro, id_rol, estado } = req.body;
+  try {
+    await actualizarUsuario({ nombreCompleto, email, cel, f_Naci, pass, nomUser, fechaRegistro, id_rol, estado });
+    message = new ResponseBody(true, 200, {
+      message: "Se ha actualizado los datos exitosamente",
+    });
+  } catch (error) {
+    if (error.status_cod) {
+      message = new ResponseBody(error.ok, error.status_cod, error.data);
+    } else {
+      console.log(error);
+      message = new ResponseBody(false, 500, {
+        message:
+          "Ha ocurrido un error inesperado. Por favor inténtelo nuevamente más tarde.",
+      });
+    }
+  }
+
+  return res.json(message);
+};
+
+const eliminarUsuarioAPI = async (req, res) => {
+  const {nomUser}  = req.body;
+  let message;
+  try {
+    const resultado = await eliminarUsuario(nomUser);
+    message = new ResponseBody(true, 200, resultado);
+  } catch (error) {
+    if (error.status_cod) {
+      message = new ResponseBody(error.ok, error.status_cod, error.data);
+    } else {
+      console.log(error);
+      message = new ResponseBody(
+        false,
+        500,
+        "Ocurrió un error en el proceso para listar las fechas"
+      );
+    }
+  }
+
+  return res.json(message);
+};
+
 module.exports = {
   listarPermisoAPI,
   actualizarPermisoAPI,
@@ -193,5 +282,9 @@ module.exports = {
   crearRolAPI,
   listarRolAPI,
   actualizarRolAPI,
-  eliminarRolAPI
+  eliminarRolAPI,
+  crearUsuarioAPI, 
+  listarUsuarioAPI, 
+  actualizarUsuarioAPI, 
+  eliminarUsuarioAPI
 };
