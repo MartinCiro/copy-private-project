@@ -1,18 +1,12 @@
 const {
-  crearCliente,
-  modificarCliente,
-  listarClientes,
-  crearContrato,
-  asignarUsuarios,
-  getClientePage,
-  cargarCalendariosMasivo,
   getListarPermiso,
   actualizaPermiso,
-  crear,
   crearRol,
   crearPermiso,
   eliminarPermisos,
-  sumarFechas
+  getListarRol,
+  actualizaRol,
+  eliminarRoles,
 } = require("../controller/clientes.controller");
 const ResponseBody = require("../../../shared/model/ResponseBody.model");
 
@@ -104,10 +98,10 @@ const eliminarPermisoAPI = async (req, res) => {
 };
 
 const crearRolAPI = async (req, res) => {
-  const { nombre, descripcion } = req.body;
+  const { rol, descripcion } = req.body;
 
   try {
-    contratoResponse = await crearRol({ nombre, descripcion });
+    contratoResponse = await crearRol({ rol, descripcion });
     message = new ResponseBody(true, 200, {
       message: "Se ha creado el rol exitosamente",
     });
@@ -200,5 +194,4 @@ module.exports = {
   listarRolAPI,
   actualizarRolAPI,
   eliminarRolAPI
-  
 };

@@ -1,11 +1,4 @@
 const { getConnection } = require("../../../interface/DBConn.js");
-const xlsx = require("xlsx");
-const fs = require("fs");
-const { v4 } = require("uuid");
-const Excel = require("exceljs");
-const {
-  getTemplatePath,
-} = require("../../validacion_impuestos/utils/impuesto.utils.js");
 const { Pool } = require("pg");
 const { query } = require("express");
 const validar = (valor, nombre) => {
@@ -192,13 +185,13 @@ async function eliminarPermisos(id) {
 async function crearRol(dataRol) {
   const pool = await getConnection();
 
-  const params = [dataRol.id, dataRol.nombre, dataRol.descripcion];
+  const params = [dataRol.rol, dataRol.descripcion];
 
   return pool
     .query(
       `
-       INSERT INTO rol (id, nombre, descripcion)
-       VALUES ($1, $2, $3);
+       INSERT INTO rol ( nombre, descripcion)
+       VALUES ($1, $2);
    `,
       params
     )
@@ -222,7 +215,7 @@ async function getListarRol(id) {
  if (id===undefined) {
    return pool
      .query(
-       "SELECT id_permiso, nombre, descripcion FROM permiso"
+       "SELECT id, nombre, descripcion FROM rol"
      )
      .then((data) => {
        return data.rowCount > 0 ? data.rows : null;
@@ -241,7 +234,7 @@ async function getListarRol(id) {
    return pool
      .query(
        `
-       SELECT id_permiso, nombre, descripcion FROM permiso where id_permiso=$1;
+       SELECT id, nombre, descripcion FROM rol where id=$1;
        `,
        [id]
      )
@@ -264,10 +257,6 @@ async function getListarRol(id) {
 async function actualizaRol(options) {
  const { id, nombre, descripcion } = options;
 
- if (!id) {
-   throw new Error("El campo 'id' es obligatorio");
- }
-
  let fields = [];
  let params = [id];
  let paramIndex = 2;
@@ -289,9 +278,9 @@ async function actualizaRol(options) {
  }
 
  const query = `
-   UPDATE permiso
+   UPDATE rol
    SET ${fields.join(", ")}
-   WHERE id_permiso = $1;
+   WHERE id = $1;
  `;
 
  const pool = await getConnection();
@@ -315,11 +304,11 @@ async function eliminarRoles(id) {
  const pool = await getConnection();
  params = [id.id];
  return pool
-   .query(`delete from permiso where id_permiso=$1`, params)
+   .query(`delete from rol where id=$1`, params)
    .then((data) => {
      return data.rowCount > 0
-       ? `El ${id} se elimino correctamente`
-       : `El ${id} no existe`;
+       ? `El id ${params[0]} se eliminó correctamente`
+       : `El id ${params[0]} no existe`;
    })
    .catch((error) => {
      console.log(error);

@@ -67,16 +67,9 @@ async function eliminarPermisos(iden) {
   }
 }
 
-async function listarRol(id_rol) {
-  if (!id_rol)
-    throw {
-      ok: false,
-      status_cod: 400,
-      data: "No se ha proporcionado el id",
-    };
-
+async function getListarRol(id_rol) {
   return clienteUtils
-    .consultarRol(id_rol)
+    .getListarRol(id_rol)
     .then((data) => {
       return data;
     })
@@ -92,9 +85,9 @@ async function listarRol(id_rol) {
 }
 
 async function crearRol(dataRol) {
-  const { nombre, descripcion } = dataRol;
+  const { rol, descripcion } = dataRol;
 
-  clienteUtils.validar(nombre, "el nombre");
+  clienteUtils.validar(rol, "el nombre del rol");
   clienteUtils.validar(descripcion, "la descripción");
 
   return await clienteUtils
@@ -113,11 +106,44 @@ async function crearRol(dataRol) {
     });
 }
 
+async function actualizaRol(options) {
+  const { id, nombre, descripcion  } = options;
+  clienteUtils.validar(id, "el elemento a modificar");
+  await clienteUtils.actualizaRol(options).catch((error) => {
+    if (error.status_cod) throw error;
+    console.log(error);
+    throw {
+      ok: false,
+      status_cod: 500,
+      data: "Ocurrió un error inesperado y el cliente no ha sido actualizado",
+    };
+  });
+}
+
+async function eliminarRoles(iden) {
+  const { id } = iden;
+
+  clienteUtils.validar(id, "el id");
+  try {
+    return await clienteUtils.eliminarRoles({ id });
+  } catch (error) {
+    if (error.status_cod) throw error;
+    console.log(error);
+    throw {
+      ok: false,
+      status_cod: 500,
+      data: "Ha ocurrido un error consultando la información en base de datos",
+    };
+  }
+}
+
 module.exports = {
-  listarRol,
   getListarPermiso,
   actualizaPermiso,
   crearPermiso,
   eliminarPermisos,
-  crearRol  
+  getListarRol,
+  crearRol,
+  actualizaRol,
+  eliminarRoles
 };

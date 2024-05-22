@@ -4,77 +4,13 @@ const bodyParser = require('body-parser');
 const { exec } = require('child_process');
 
 // api handlers
-const { listarPermiso, actualizarClienteAPI, crearContratoAPI,
-    asignacionUsuariosAPI, getClientePageAPI, actualizarPermiso, crearRolAPI, crearPermisoAPI, eliminarPermiso, sumarFechasAPI } = require('../api/clientes.api');
-const { isAuthenticatedMW, checkPermissions } = require('../../auth/api/auth.api');
+const { listarPermisoAPI, actualizarPermisoAPI, crearPermisoAPI, eliminarPermisoAPI, crearRolAPI, listarRolAPI, actualizarRolAPI, eliminarRolAPI} = require('../api/clientes.api');
+
 
 
 const router = Router();
 
-/**
- *  {
- *      headers: {
- *          Authorization | jwt: string,
- *      },
- * 
- *      body: {
- *          nombre: string | undefined,
- *          nit: string | undefined,
- *          direccion: string | undefined,
- *          obligaciones_tributarias: [] | undefined
- *      },
- * 
- *      query: {
- *          id: number
- *      }
- * 
- *  }
- */
-router.patch('/clientes/actualizarCliente', isAuthenticatedMW, checkPermissions([2]), actualizarClienteAPI);
 
-/**
- *  {
- *      headers: {
- *          Authorization | jwt: string,
- *      },
- *      query: {
- *          id_cliente: number
- *      }
- *  }
- */
-router.get('/clientes/getClientePage', isAuthenticatedMW, checkPermissions([1, 2]), getClientePageAPI)
-
-/**
- *  {
- *      headers: {
- *          Authorization | jwt: string,
- *      }
- *      body: {
- *          id_cliente: number, 
- *          fecha_inicio: Date,
- *          fecha_fin: Date,
- *          id_servicio: number
- *      },
- *      
- *  }
- */
-router.post('/contrato/crearContrato', isAuthenticatedMW, checkPermissions([1, 2]), crearContratoAPI);
-
-
-/**
- *  {
- *      headers: {
- *          Authorization | jwt: string,
- *      },
- *      body: {
- *          id_cliente: number, 
- *          id_usuario: number,
- *      }
- *  }
- */
-router.delete('/clientes/usuario', isAuthenticatedMW, checkPermissions([1, 2]), asignacionUsuariosAPI);
-
-/* router.get('/', docs); */
 
 router.post('/permiso', crearPermisoAPI);
 
@@ -86,11 +22,11 @@ router.delete('/permiso', eliminarPermisoAPI);
 
 router.post('/rol', crearRolAPI);
 
-router.get('/rol', listarRolAPI); /* listarRol */
+router.get('/rol', listarRolAPI);
 
 router.patch('/rol', actualizarRolAPI); /* actualizarRol */
 
-router.delete('/rol', eliminarRol); /* eliminarPermiso */
+router.delete('/rol', eliminarRolAPI); /* eliminarPermiso */
 
 
 module.exports = router;
