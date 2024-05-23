@@ -222,6 +222,77 @@ async function eliminarUsuario(nomUser) {
   }
 }
 
+async function crearGame(dataGame) {
+  const { gameId, gameName, gameDescription, nomUser } = dataGame;
+  
+  clienteUtils.validar(gameId, "el id del Juego.");
+  clienteUtils.validar(gameName, "el nombre del juego.");
+  clienteUtils.validar(gameDescription, "la descripcion del juego.");
+  clienteUtils.validar(nomUser, "el nombre del usuario.");
+
+  return await clienteUtils
+    .crearGame(dataGame)
+    .then((data) => {
+      return data;
+    })
+    .catch((error) => {
+      if (error.status_cod) throw error;
+      throw {
+        ok: false,
+        status_cod: 500,
+        data: "Ocurrió un error inesperado y el juego no ha sido creado ",
+      };
+    });
+}
+
+async function listarGame(nom_user) {
+  return clienteUtils
+    .listarGame(nom_user)
+    .then((data) => {
+      return data;
+    })
+    .catch((error) => {
+      if (error.status_cod) throw error;
+      console.log(error);
+      throw {
+        ok: false,
+        status_cod: 500,
+        data: "Ocurrió un error inesperado y el usuario no ha sido creado",
+      };
+    });
+}
+
+async function actualizarGame(options) {
+  const { gameId, gameName, gameDescription, nomUser  } = options;
+  clienteUtils.validar(gameId, "el id del juego a modificar");
+  clienteUtils.validar(nomUser, "el nombre del usuario a modificar");
+
+  await clienteUtils.actualizarGame(options).catch((error) => {
+    if (error.status_cod) throw error;
+    console.log(error);
+    throw {
+      ok: false,
+      status_cod: 500,
+      data: "Ocurrió un error inesperado y el cliente no ha sido actualizado",
+    };
+  });
+}
+
+async function eliminarGame(gameId) {
+  clienteUtils.validar(gameId, "el id del juego a eliminar");
+  try {
+    return await clienteUtils.eliminarGame(gameId);
+  } catch (error) {
+    if (error.status_cod) throw error;
+    console.log(error);
+    throw {
+      ok: false,
+      status_cod: 500,
+      data: "Ha ocurrido un error consultando la información en base de datos",
+    };
+  }
+}
+
 module.exports = {
   getListarPermiso,
   actualizaPermiso,
@@ -235,4 +306,8 @@ module.exports = {
   listarUsuario, 
   actualizarUsuario, 
   eliminarUsuario,
+  crearGame, 
+  listarGame, 
+  actualizarGame, 
+  eliminarGame
 };

@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const { exec } = require('child_process');
 
 // api handlers
-const { listarPermisoAPI, actualizarPermisoAPI, crearPermisoAPI, eliminarPermisoAPI, crearRolAPI, listarRolAPI, actualizarRolAPI, eliminarRolAPI, crearUsuarioAPI, listarUsuarioAPI, actualizarUsuarioAPI, eliminarUsuarioAPI} = require('../api/clientes.api');
+const { listarPermisoAPI, actualizarPermisoAPI, crearPermisoAPI, eliminarPermisoAPI, crearRolAPI, listarRolAPI, actualizarRolAPI, eliminarRolAPI, crearUsuarioAPI, listarUsuarioAPI, actualizarUsuarioAPI, eliminarUsuarioAPI, crearGameAPI, listarGameAPI, actualizarGameAPI, eliminarGameAPI} = require('../api/clientes.api');
 
 
 
@@ -34,7 +34,15 @@ router.get('/user', listarUsuarioAPI);
 
 router.patch('/user', actualizarUsuarioAPI); 
 
-router.delete('/user', eliminarUsuarioAPI); 
+router.delete('/user', eliminarUsuarioAPI);
+
+router.post('/game', crearGameAPI);
+
+router.get('/game', listarGameAPI);
+
+router.patch('/game', actualizarGameAPI); 
+
+router.delete('/game', eliminarGameAPI); 
 
 
 module.exports = router;

@@ -531,6 +531,193 @@ async function eliminarUsuario(nomUser) {
     .finally(() => pool.end());
 }
 
+async function crearGame(dataGame) {
+  const pool = await getConnection();
+
+  const params = [
+    dataGame.gameId,
+    dataGame.gameName,
+    dataGame.gameDescription,
+    dataGame.nomUser
+  ];
+
+  try {
+    // Verificar si nom_user existe en la tabla usuario
+    const checkUserQuery = 'SELECT 1 FROM game WHERE nom_user = $1';
+    const userResult = await pool.query(checkUserQuery, [dataGame.nomUser]);
+
+    if (userResult.rowCount === 0) {
+      throw {
+        ok: false,
+        status_cod: 404,
+        data: `El usuario ${dataGame.nomUser} no existe`,
+      };
+    }
+
+    // Si el usuario existe, proceder con la inserción
+    const insertGameQuery = `
+      INSERT INTO game (game_id, game_name, game_description, nom_user)
+      VALUES ($1, $2, $3, $4);
+    `;
+    const result = await pool.query(insertGameQuery, params);
+
+    return result.rowCount > 0
+      ? "El Juego se ha creado correctamente"
+      : "No ha sido posible crear el Juego";
+  } catch (error) {
+    existe(error, "juego");
+    console.log(error);
+    throw {
+      ok: false,
+      status_cod: error.status_cod || 500,
+      data: error.data || `Ocurrió un error insertando el juego: ${error.message}`,
+    };
+  } finally {
+    pool.end();
+  }
+}
+
+async function listarGame(nomUser) {
+  const pool = await getConnection();
+  if (nomUser === undefined) {
+    return pool
+      .query(
+        "SELECT nom_completo, nom_user, email, num_contacto, fecha_nacimi, id_rol, estado, fecha_usuario_registro FROM usuario"
+      )
+      .then((data) => {
+        return data.rowCount > 0 ? data.rows : null;
+      })
+      .catch((error) => {
+        if (error.status_cod) throw error;
+        error.status_cod ? error : null;
+        throw {
+          ok: false,
+          status_cod: 500,
+          data: `Ha ocurrido un error consultando la información en la base de datos`,
+        };
+      })
+      .finally(() => pool.end());
+  } else {
+    return pool
+      .query(
+        `
+       SELECT nom_completo, nom_user, email, num_contacto, fecha_nacimi, id_rol, estado, fecha_usuario_registro FROM usuario where nom_user=$1;
+       `,
+        [nomUser]
+      )
+      .then((data) => {
+        return data.rowCount > 0
+          ? data.rows
+          : "El usuario no ha sido encontrado";
+      })
+      .catch((error) => {
+        if (error.status_cod) throw error;
+        error.status_cod ? error : null;
+        throw {
+          ok: false,
+          status_cod: 500,
+          data: "Ha ocurrido un error consultando la información en la base de datos",
+        };
+      })
+      .finally(() => pool.end());
+  }
+}
+
+async function actualizarGame(options) {
+  const {
+    gameId, gameName, gameDescription, nomUser
+  } = options;
+
+  const fieldsMapping = {
+    game_id: gameId,
+    game_name: gameName,
+    game_description: gameDescription,
+    nom_user: nomUser
+  };
+
+  let fields = [];
+  let params = [];
+  let paramIndex = 1;
+
+  for (const [field, value] of Object.entries(fieldsMapping)) {
+    if (value !== undefined) {
+      // Check if the value is not undefined
+      fields.push(`${field} = $${paramIndex++}`);
+      params.push(value);
+    }
+  }
+
+  // Add 'nomUser' as the last parameter for the WHERE clause
+  params.push(nomUser);
+  if (fields.length === 0) {
+    throw new Error(
+      "Al menos uno de los campos debe ser proporcionado para actualizar."
+    );
+  }
+
+  const query = `
+    UPDATE game
+    SET ${fields.join(", ")}
+    WHERE nom_user = $${paramIndex};
+  `;
+
+  const pool = await getConnection();
+  try {
+    if (nomUser && gameId) {
+      const checkEmailQuery =
+        "SELECT 1 FROM game WHERE game_id = $1 AND nom_user <> $2";
+      const checkEmailResult = await pool.query(checkEmailQuery, [
+        gameId,
+        nomUser,
+      ]);
+      if (checkEmailResult.rowCount > 0) {
+        throw {
+          ok: false,
+          status_cod: 409,
+          data: "El correo ya existe en otro usuario.",
+        };
+      }
+    }
+
+    const data = await pool.query(query, params);
+    return data.rowCount > 0 ? data.rows : "No existe";
+  } catch (error) {
+    if (error.status_cod === 409) {
+      throw error; // Propagate the custom error
+    } else {
+      console.log(error);
+      throw {
+        ok: false,
+        status_cod: 500,
+        data: "Ocurrió un error en la base de datos actualizando el usuario",
+      };
+    }
+  } finally {
+    pool.end();
+  }
+}
+
+async function eliminarGame(gameId) {
+  const pool = await getConnection();
+  return pool
+    .query(`delete from game where game_id=$1`, [gameId])
+    .then((data) => {
+      return data.rowCount > 0
+        ? `El ${gameId} del juego se eliminó correctamente`
+        : `El ${gameId} del juego no existe`;
+    })
+    .catch((error) => {
+      console.log(error);
+      if (error.status_cod) throw error;
+      error.status_cod ? error : null;
+      throw {
+        ok: false,
+        status_cod: 500,
+        data: "Ha ocurrido un error consultando la información en la base de datos",
+      };
+    })
+    .finally(() => pool.end());
+}
 module.exports = {
   validar,
   getListarPermiso,
@@ -545,4 +732,8 @@ module.exports = {
   listarUsuario,
   actualizarUsuario,
   eliminarUsuario,
+  crearGame, 
+  listarGame, 
+  actualizarGame, 
+  eliminarGame
 };
