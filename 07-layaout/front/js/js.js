@@ -1,5 +1,4 @@
 //const url = 'https://api.rawg.io/api/games?key=0d5c200a4d584e4bb294c6e20858da87'; // Replace with your actual URL
-
 /* 
 const xhr = new XMLHttpRequest();
 xhr.open('GET', url);
@@ -55,7 +54,6 @@ xhr.send(); */
   });
 }; */
 
-
 /* const funcionData = (url, metodo, headers = {}, body = null) => {
   fetch(url,{ method: metodo, headers: headers, body: body })
     .then(response => {
@@ -71,25 +69,39 @@ xhr.send(); */
   'Authorization': 'Bearer 1iozf2r5r1nyc2ddewp16fszh9qyje',
 }, 'f screenshots.*; where id = 160939;')); */
 
+const urlBase = "http://localhost:4000/"
 
-fetch(
-  "https://api.igdb.com/v4/games",
-  { method: 'POST',
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Accept': 'application/json',
-      'Client-ID': '1xmuxio5l04vacb5d2sd5fs1jc2zmh',
-      'Authorization': 'Bearer 1iozf2r5r1nyc2ddewp16fszh9qyje',
-    },
-    body: "f screenshots.*; where id = 160939;"
-})
-  .then(response => {
-      console.log(response.json());
-  })
-  .catch(err => {
-      console.error(err);
-  });
+const funcionData = async (url, metodo, headers = {}, body = null) => {
+  try {
+    const response = await fetch(url, { method: metodo, headers: headers, body: body });
+    const data = await response.json();
+    return data;
+  } catch (err) {
+    console.error(err);
+    throw err; // Propaga el error para permitir el manejo en el nivel superior
+  }
+};
 
+
+const obtenerDatos = async (variableName, url, metodo, headers = {}, body = null) => {
+  try {
+    const data = await funcionData(url, metodo, headers, body);
+    const result = {};
+    result[variableName] = data;
+    return result;
+  } catch (err) {
+    console.error('Error:', err);
+  }
+};
+let games;
+obtenerDatos('games', `${urlBase}gameAPI`, 'GET', {
+  'Accept': 'application/json',
+}).then(result => {
+  games = result.games; // Asigna los datos a la variable
+  console.log(games.result[0].screenshots[0].url); // Imprime los datos después de que la promesa se resuelve
+}).catch(err => {
+  console.error('Error:', err);
+});
 /* 
 
 const obtenerDatosDeJuegos = async (idGame) => {

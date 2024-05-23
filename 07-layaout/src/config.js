@@ -18,6 +18,11 @@ module.exports = {
     UserDBImpuestos: process.env.UserDBImpuestos,
     PasswordBDImpuestos: process.env.PasswordDBImpuestos,
     DatabaseImpuestos: process.env.DatabaseImpuestos,
+
+    // ApiConn
+    Url: process.env.Url,
+    ClientId: process.env.ClientId,
+    Token: process.env.Token,
     
     // Auth
     JWT_SECRETO: process.env.JWT_SECRETO,
