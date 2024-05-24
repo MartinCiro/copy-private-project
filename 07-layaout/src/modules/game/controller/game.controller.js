@@ -1,61 +1,44 @@
 const clienteUtils = require("../utils/game.utils");
 
-async function crearGame(dataGame) {
-  const { id, nombre, descripcion } = dataGame;
+let initialResultsFetched = false;
+let initialResultsCache = [];
+let errorOccurred = null;
 
-  clienteUtils.validar(id, "el id");
-  clienteUtils.validar(nombre, "el nombre");
+function initializeGameFetching() {
+  const emitter = clienteUtils.startFetchingGames();
 
-  return await clienteUtils
-    .crearGame(dataGame)
-    .then((data) => {
-      return data;
-    })
-    .catch((error) => {
-      if (error.status_cod) throw error;
-      console.log(error);
-      throw {
-        ok: false,
-        status_cod: 500,
-        data: "Ocurrió un error inesperado y el rol no ha sido creado",
-      };
-    });
-}
-
-async function getListarGame(element) {
-  try {
-    return await clienteUtils.getListarGame(element);
-  } catch (error) {
-    if (error.status_cod) throw error;
-    console.log(error);
-    throw {
-      ok: false,
-      status_cod: 500,
-      data: "Ha ocurrido un error consultando la información en base de datos",
-    };
-  }
-}
-
-async function actualizaGame(options) {
-  const { id, nombre, descripcion  } = options;
-  clienteUtils.validar(id, "el elemento a modificar");
-  await clienteUtils.actualizaGame(options).catch((error) => {
-    if (error.status_cod) throw error;
-    console.log(error);
-    throw {
-      ok: false,
-      status_cod: 500,
-      data: "Ocurrió un error inesperado y el cliente no ha sido actualizado",
-    };
+  emitter.once('initialResults', (initialResults) => {
+    initialResultsCache = initialResults;
+    initialResultsFetched = true;
   });
+
+  emitter.on('error', (error) => {
+    errorOccurred = error;
+  });
+
+  return emitter;
 }
 
-async function eliminarGames(iden) {
-  const { id } = iden;
+const emitter = initializeGameFetching();
 
-  clienteUtils.validar(id, "el id");
+async function getGameResults() {
+  if (initialResultsFetched) {
+    return initialResultsCache;
+  } else {
+    return new Promise((resolve, reject) => {
+      emitter.once('initialResults', (initialResults) => {
+        resolve(initialResults);
+      });
+      emitter.once('error', (error) => {
+        reject(error);
+      });
+    });
+  }
+}
+
+async function handleApiRequest(req, res) {
   try {
-    return await clienteUtils.eliminarGames({ id });
+    return await getGameResults();
   } catch (error) {
     if (error.status_cod) throw error;
     console.log(error);
@@ -66,9 +49,7 @@ async function eliminarGames(iden) {
     };
   }
 }
+
 module.exports = {
-  getListarGame,
-  actualizaGame,
-  crearGame,
-  eliminarGames
+  handleApiRequest
 };

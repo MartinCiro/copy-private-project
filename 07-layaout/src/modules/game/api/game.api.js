@@ -1,4 +1,5 @@
 const {
+  handleApiRequest,
   getListarGame,
   actualizaGame,
   crearGame,
@@ -31,7 +32,7 @@ const listarGameAPI = async (req, res) => {
   const {id} = req.body;
   let message;
   try {
-    const resultado = await getListarGame(id);
+    const resultado = await handleApiRequest();
     message = new ResponseBody(true, 200, resultado);
   } catch (error) {
     if (error.status_cod) {

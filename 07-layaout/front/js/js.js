@@ -1,87 +1,18 @@
-//const url = 'https://api.rawg.io/api/games?key=0d5c200a4d584e4bb294c6e20858da87'; // Replace with your actual URL
-/* 
-const xhr = new XMLHttpRequest();
-xhr.open('GET', url);
-xhr.onload = function() {
-  if (xhr.status === 200) { // Check for successful response
-    const data = JSON.parse(xhr.responseText); // Parse JSON data
-    console.log(data)
-    if (data && data.image) {
-      console.log(data);
-      imageElement.src = data.image;
-      imageElement.alt = data.altText || ''; // Set alt text (optional)
-    } else {
-      console.error('Error retrieving image data');
-    }
-  } else {
-    console.error('Error making request:', xhr.statusText);
-  }
-};
-
-xhr.onerror = function() {
-  console.error('Network error');
-};
-
-xhr.send(); */
-//icons -> https://game-icons.net/1x1/delapouite/tic-tac-toe.html
-/* const funcionData = (url, metodo, headers = {}, body = null) => {
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open(metodo, url);
-
-    // Configurar los encabezados, si se proporcionan
-    for (const key in headers) {
-      xhr.setRequestHeader(key, headers[key]);
-    }
-    xhr.onload = function () {
-      if (xhr.status === 200) {
-        try {
-          const data = JSON.parse(xhr.responseText);
-          resolve(data);
-        } catch (error) {
-          reject(`Error al parsear JSON: ${error}`);
-        }
-      } else {
-        reject(`Error en la solicitud: ${xhr.status}`);
-      }
-    };
-
-    xhr.onerror = function (e) {
-      reject(e);
-    };                                           
-
-    xhr.send(body);
-  });
-}; */
-
-/* const funcionData = (url, metodo, headers = {}, body = null) => {
-  fetch(url,{ method: metodo, headers: headers, body: body })
-    .then(response => {
-        console.log(response.json());
-    })
-    .catch(err => {
-        console.error(err);
-    });
-} */
-/* console.log(funcionData("https://api.igdb.com/v4/games", "POST", {
-  'Accept': 'application/json',
-  'Client-ID': '1xmuxio5l04vacb5d2sd5fs1jc2zmh',
-  'Authorization': 'Bearer 1iozf2r5r1nyc2ddewp16fszh9qyje',
-}, 'f screenshots.*; where id = 160939;')); */
-
-const urlBase = "http://localhost:4000/"
+const urlBase = "http://localhost:4000/";
 
 const funcionData = async (url, metodo, headers = {}, body = null) => {
   try {
     const response = await fetch(url, { method: metodo, headers: headers, body: body });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
     const data = await response.json();
     return data;
   } catch (err) {
-    console.error(err);
+    console.error('Fetch error:', err);
     throw err; // Propaga el error para permitir el manejo en el nivel superior
   }
 };
-
 
 const obtenerDatos = async (variableName, url, metodo, headers = {}, body = null) => {
   try {
@@ -90,18 +21,28 @@ const obtenerDatos = async (variableName, url, metodo, headers = {}, body = null
     result[variableName] = data;
     return result;
   } catch (err) {
-    console.error('Error:', err);
+    console.error('Error in obtenerDatos:', err);
   }
 };
-let games;
-obtenerDatos('games', `${urlBase}gameAPI`, 'GET', {
-  'Accept': 'application/json',
-}).then(result => {
-  games = result.games; // Asigna los datos a la variable
-  console.log(games.result[0].screenshots[0].url); // Imprime los datos después de que la promesa se resuelve
-}).catch(err => {
-  console.error('Error:', err);
+
+$(document).ready(async function () {
+  try {
+    const games1 = await obtenerDatos('games', `${urlBase}gameAPI`, 'GET', {
+      'Accept': 'application/json',
+    });
+    
+    const result = await obtenerDatos('games', `${urlBase}gameAPI`, 'GET', {
+      'Accept': 'application/json',
+    });
+    if (result && result.games) {
+      const games = result.games.result; // Asigna los datos a la variable
+      console.log(games, games1); // Imprime los datos después de que la promesa se resuelve
+    }
+  } catch (err) {
+    console.error('Error en document ready:', err);
+  }
 });
+
 /* 
 
 const obtenerDatosDeJuegos = async (idGame) => {
