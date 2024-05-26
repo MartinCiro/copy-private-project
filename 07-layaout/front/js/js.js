@@ -1,47 +1,85 @@
 const urlBase = "http://localhost:4000/";
 
-const funcionData = async (url, metodo, headers = {}, body = null) => {
-  try {
-    const response = await fetch(url, { method: metodo, headers: headers, body: body });
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+const funcionData = (url, metodo, headers = {}, body = null) => {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open(metodo, url, true);
+
+    // Configurar los headers
+    for (const key in headers) {
+      xhr.setRequestHeader(key, headers[key]);
     }
-    const data = await response.json();
-    return data;
-  } catch (err) {
-    console.error('Fetch error:', err);
-    throw err; // Propaga el error para permitir el manejo en el nivel superior
-  }
+
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState === XMLHttpRequest.DONE) {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const responseJson = JSON.parse(xhr.responseText);
+            resolve(responseJson);
+          } catch (err) {
+            reject(`Error parsing JSON: ${err}`);
+          }
+        } else {
+          reject(`HTTP error! status: ${xhr.status}`);
+        }
+      }
+    };
+
+    xhr.onerror = function() {
+      reject('Network error');
+    };
+
+    if (body != null) {
+      // Convertir body a JSON si es un objeto
+      if (typeof body === 'object') {
+        body = JSON.stringify(body);
+      }
+    }
+
+    xhr.send(body);
+  });
 };
 
-const obtenerDatos = async (variableName, url, metodo, headers = {}, body = null) => {
-  try {
-    const data = await funcionData(url, metodo, headers, body);
-    const result = {};
-    result[variableName] = data;
-    return result;
-  } catch (err) {
-    console.error('Error in obtenerDatos:', err);
-  }
+const obtenerDatos = async (url, metodo, headers = {}, body = null) => {
+  return await funcionData(url, metodo, headers, body);
 };
+
+let games;
 
 $(document).ready(async function () {
   try {
-    const games1 = await obtenerDatos('games', `${urlBase}gameAPI`, 'GET', {
-      'Accept': 'application/json',
-    });
-    
-    const result = await obtenerDatos('games', `${urlBase}gameAPI`, 'GET', {
-      'Accept': 'application/json',
-    });
-    if (result && result.games) {
-      const games = result.games.result; // Asigna los datos a la variable
-      console.log(games, games1); // Imprime los datos después de que la promesa se resuelve
-    }
-  } catch (err) {
-    console.error('Error en document ready:', err);
+    setTimeout(async function () {
+      let data1 = await obtenerDatos(`${urlBase}gameAPI`, 'GET', {
+        'Accept': 'application/json',
+      });
+  
+      /* const promises = data1.result.map(async (element) => {
+        setTimeout(async function () {
+          return await obtenerDatos(`${urlBase}dataJuego`, 'POST', {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          }, {
+            'id': element.id,
+            'uuid': element.uid,
+          });
+        }, 5000)
+      });
+  
+      const result = await Promise.all(promises);
+      const vectorResult = [];
+      result.forEach(element => {
+        console.log(element);
+        element.result.includes("No se ha encontrado el juego")? element : vectorResult.push(element.result);
+      });
+      console.log(vectorResult) */
+    }, 1500);
+  } catch (error) {
+    console.error('Error:', error);
   }
 });
+
+
+
 
 /* 
 

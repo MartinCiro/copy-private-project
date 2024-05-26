@@ -4,16 +4,11 @@ const bodyParser = require('body-parser');
 const { exec } = require('child_process');
 
 // api handlers
-const { crearGameAPI, listarGameAPI, actualizarGameAPI, eliminarGameAPI} = require('../api/game.api');
+const { listarGameAPI, dataJuegoAPI} = require('../api/game.api');
 
 const router = Router();
-router.post('/gameAPI', crearGameAPI);
-
-router.get('/gameAPI', listarGameAPI); 
-
-router.patch('/gameAPI', actualizarGameAPI); 
-
-router.delete('/gameAPI', eliminarGameAPI);
+router.get('/gameAPI', listarGameAPI);
+router.post('/dataJuego', dataJuegoAPI);
 
 
 module.exports = router;
