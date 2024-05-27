@@ -7,7 +7,7 @@ const ResponseBody = require("../../../shared/model/ResponseBody.model");
 const dataJuegoAPI = async (req, res) => {
   let data;
   let message;
-  if(req.length > 490){
+  if(req.length > 3 || req.length == 0) {
     data = req;
   }else {
     const {id, uuid} = req.body;
