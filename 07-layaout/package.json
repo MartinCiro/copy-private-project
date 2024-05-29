@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "nodemon ./src/index.js",
     "start": "concurrently \"nodemon ./src/index.js\" \"live-server front\"",
-    "build": "powershell -Command \"if (-not (Test-Path dist)) { New-Item -ItemType Directory -Path dist }; Get-ChildItem -Path src -Recurse -Filter '*.js' | ForEach-Object { Get-Content $_.FullName } | Out-File -FilePath 'dist/bundle.js' -Force\""
+    "build": "parcel build src/index.js"
   },
   "keywords": [
     "control",
@@ -26,13 +26,14 @@
     "express": "^4.18.2",
     "glob-parent": "^6.0.2",
     "jsonwebtoken": "^9.0.0",
-    "live-server": "^1.1.0",
     "node-fetch": "^3.3.2",
     "pg": "^8.11.5",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
+    "live-server": "^1.1.0",
     "morgan": "^1.10.0",
-    "nodemon": "^3.0.1"
+    "nodemon": "^3.0.1",
+    "parcel-bundler": "^1.12.5"
   }
 }
