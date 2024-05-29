@@ -1,7 +1,4 @@
 const { Router } = require('express');
-const express = require('express');
-const bodyParser = require('body-parser');
-const { exec } = require('child_process');
 
 // api handlers
 const { listarPermisoAPI, actualizarPermisoAPI, crearPermisoAPI, eliminarPermisoAPI, crearRolAPI, listarRolAPI, actualizarRolAPI, eliminarRolAPI, crearUsuarioAPI, listarUsuarioAPI, actualizarUsuarioAPI, eliminarUsuarioAPI, crearGameAPI, listarGameAPI, actualizarGameAPI, eliminarGameAPI} = require('../api/clientes.api');
