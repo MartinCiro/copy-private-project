@@ -1,81 +1,118 @@
-//router
-router.get('/gameAPI', listarGameAPI);
+const { client_encoding } = require("pg/lib/defaults.js");
+const { connApi } = require("../../../interface/DBConn.js");
+const axios = require('axios');
 
-//api
-const listarGameAPI = async (req, res) => {
-  //const {id} = req.body;
-  let message;
+const validar = (valor, nombre) => {
+  if (!valor)
+    throw {
+      ok: false,
+      status_cod: 400,
+      data: `No se ha proporcionado ${nombre}`,
+    };
+};
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+
+async function fetchData(endpoint, body, metodo = "post", retries = 3, backoff = 2000) {
   try {
-    const resultado = await handleApiRequest();
-    message = new ResponseBody(true, 200, resultado);
+    const config = {
+      url: `${connApi.url}${endpoint}`,
+      method: metodo,
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${connApi.token}`,
+        'Client-ID': connApi.clientId,
+        'Content-Type': 'text/plain'
+      },
+      data: body
+    };
+    const response = await axios(config);
+
+    return response.data;
   } catch (error) {
-    if (error.status_cod) {
-      message = new ResponseBody(error.ok, error.status_cod, error.data);
-    } else {
-      console.log(error);
-      message = new ResponseBody(
-        false,
-        500,
-        "Ocurrió un error en el proceso para listar las fechas"
-      );
+    if (error.response && error.response.status=== 429) {
+      const retryAfter = error.response.headers['retry-after'];
+      const waitTime = retryAfter ? parseInt(retryAfter, 10) * 1000 : backoff;
+      if (retries > 0) {
+        console.warn(`Rate limit exceeded. Retrying after ${waitTime / 1000} seconds.`);
+        await delay(waitTime);
+        return await fetchData(endpoint, body, retries - 1, backoff * 2);
+      } else {
+        throw new Error('Too many requests. Please try again later.');
+      }
+    } else if (error.response && error.response.status === 401) {
+      console.log(error.response.data);
+    }else {
+      console.log(error.response)
+      /* throw {
+        ok: error.response,
+        status_cod: error.response,
+        data: `Ha ocurrido un error consultando la información en la API ${error.message}`
+      }; */
     }
   }
 
-  return res.json(message);
-};
-
-//controller
-let initialResultsFetched = false;
-let initialResultsCache = [];
-let errorOccurred = null;
-
-function initializeGameFetching() {
-  const emitter = clienteUtils.startFetchingGames();
-
-  emitter.once("initialResults", (initialResults) => {
-    initialResultsCache = initialResults;
-    initialResultsFetched = true;
-  });
-
-  emitter.on("error", (error) => {
-    errorOccurred = error;
-  });
-
-  return emitter;
 }
 
-const emitter = initializeGameFetching();
 
-async function getGameResults() {
-  if (initialResultsFetched) {
-    return initialResultsCache;
-  } else {
-    return new Promise((resolve, reject) => {
-      emitter.once("initialResults", (initialResults) => {
-        resolve(initialResults);
-      });
-      emitter.once("error", (error) => {
-        reject(error);
-      });
+
+async function getListarGames(param) {
+  const tiempoEspera = 5000;
+  const vectorJuego = [];
+
+  if (param.length > 0) {
+    /* const promises = param.map(async (element) => {
+      const bodyJuego = `f screenshots.url, name, summary, genres.name; where id = ${element.id};`;
+      const game = await fetchData('games', bodyJuego);
+      game[0].uuid = element.uid;
+      return game;
     });
-  }
+    Promise.allSettled(promises)
+      .then((result) => {
+        result.forEach((promiseResult) => {
+          promiseResult.status === 'fulfilled' ? vectorJuego.push(promiseResult.value) : console.error('Fallo: ', promiseResult.reason);
+          delay(tiempoEspera);
+        });
+      })
+      .catch((error) => {
+        console.log(error)
+        throw {
+          ok: false,
+          status_cod: 500,
+          data: `No se ha encontrado el juego ${param.id}`,
+        };
+      });
+  } */
+
+  param.forEach(async (element) => {
+    const bodyJuego = `f screenshots.url, name, summary, genres.name; where id = ${element.id};`;
+    const game = await fetchData('games', bodyJuego);
+    console.log((game !== null && game != "undefined") || game != "undefined" ? game : null)
+    if(game !== null && game !== undefined) {
+      Promise.allSettled(game)
+      .then((result) => {
+        result.forEach((promiseResult) => {
+          promiseResult.status === 'fulfilled' ? vectorJuego.push(promiseResult.value) : console.error('Fallo: ', promiseResult.reason);
+          delay(tiempoEspera);
+        });
+      })
+      .catch((error) => {
+        console.log(error)
+        throw {
+          ok: false,
+          status_cod: 500,
+          data: `No se ha encontrado el juego ${param.id}`,
+        };
+      });
+    }
+    
+  });
+  return vectorJuego;
+}
 }
 
-async function handleApiRequest(req, res) {
-  try {
-    return await getGameResults();
-  } catch (error) {
-    if (error.status_cod) throw error;
-    console.log(error);
-    throw {
-      ok: false,
-      status_cod: 500,
-      data: "Ha ocurrido un error consultando la información en base de datos",
-    };
-  }
-}
-
-//utils
 function startFetchingGames() {
   const EventEmitter = require('events');
   const emitter = new EventEmitter();
@@ -96,19 +133,18 @@ function startFetchingGames() {
           const body = bodyJuegoExterno.replace("rem", contador);
           batchPromises.push(fetchData('external_games', body));
         }
+        const ls = getListarGames(general)
         emitter.emit('allResults', general);
         emitter.emit('initialResults', general);
         emittedInitialResults = true;
         const results = await Promise.allSettled(batchPromises);
-        
+
         for (const result of results) {
           if (result.status === 'fulfilled') {
             general.push(...result.value);
-          } else {
-            console.error(`Error fetching data at offset ${contador - batchSize + results.indexOf(result)}: ${result.reason}`);
           }
         }
-        
+
         await delay(delayBetweenBatches);
       }
     } catch (error) {
@@ -122,3 +158,13 @@ function startFetchingGames() {
   fetchGames();
   return emitter;
 }
+
+
+
+module.exports = {
+  validar,
+  fetchData,
+  delay,
+  startFetchingGames,
+  getListarGames
+};

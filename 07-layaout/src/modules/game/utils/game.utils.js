@@ -15,6 +15,7 @@ function delay(ms) {
 }
 
 
+
 async function fetchData(endpoint, body, metodo = "post", retries = 3, backoff = 2000) {
   try {
     const config = {
@@ -29,35 +30,34 @@ async function fetchData(endpoint, body, metodo = "post", retries = 3, backoff =
       data: body
     };
     const response = await axios(config);
-
     return response.data;
   } catch (error) {
-    if (error.response && error.response.status=== 429) {
+    if (error.response && error.response.status === 429) {
       const retryAfter = error.response.headers['retry-after'];
       const waitTime = retryAfter ? parseInt(retryAfter, 10) * 1000 : backoff;
       if (retries > 0) {
         console.warn(`Rate limit exceeded. Retrying after ${waitTime / 1000} seconds.`);
         await delay(waitTime);
-        return await fetchData(endpoint, body, retries - 1, backoff * 2);
+        return await fetchData(endpoint, body, metodo, retries - 1, backoff * 2);
       } else {
         throw new Error('Too many requests. Please try again later.');
       }
     } else if (error.response && error.response.status === 401) {
       console.log(error.response.data);
-    }else {
+    } else {
+      console.error(error.response);
       throw {
-        ok: error.response,
-        status_cod: error.response.status_cod,
-        data: `Ha ocurrido un error consultando la información en la API ${error.message}`
+        ok: false,
+        status_cod: error.response.status,
+        data: `Ha ocurrido un error consultando la información en la API: ${error.message}`
       };
     }
   }
-
 }
 
 
 
-async function getListarGames(param) {
+/* async function getListarGames(param) {
   const tiempoEspera = 3000;
   const vectorJuego = [];
 
@@ -88,7 +88,7 @@ async function getListarGames(param) {
         };
       });
   }
-}
+} */
 
 
 function startFetchingGames() {
@@ -144,5 +144,5 @@ module.exports = {
   fetchData,
   delay,
   startFetchingGames,
-  getListarGames
+  /* getListarGames */
 };
