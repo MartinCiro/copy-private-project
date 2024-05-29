@@ -6,12 +6,13 @@ let errorOccurred = null;
 
 function initializeGameFetching() {
   const emitter = clienteUtils.startFetchingGames();
-  emitter.once("initialResults", (initialResults) => {
+
+  emitter.once('initialResults', (initialResults) => {
     initialResultsCache = initialResults;
     initialResultsFetched = true;
   });
 
-  emitter.on("error", (error) => {
+  emitter.on('error', (error) => {
     errorOccurred = error;
   });
 
@@ -22,33 +23,18 @@ const emitter = initializeGameFetching();
 
 async function getGameResults() {
   if (initialResultsFetched) {
-    
     return initialResultsCache;
   } else {
     return new Promise((resolve, reject) => {
-      emitter.once("initialResults", (initialResults) => {
+      emitter.once('initialResults', (initialResults) => {
         resolve(initialResults);
       });
-      emitter.once("error", (error) => {
+      emitter.once('error', (error) => {
         reject(error);
       });
     });
   }
 }
-
-const dataJuego = async (param) => {
-  try {
-    return await clienteUtils.getListarGames(param);
-  } catch (error) {
-    if (error.status_cod) throw error;
-    console.log(error);
-    throw {
-      ok: false,
-      status_cod: 500,
-      data: "Ha ocurrido un error consultando la información en base de datos",
-    };
-  }
-};
 
 async function handleApiRequest(req, res) {
   try {
@@ -64,11 +50,6 @@ async function handleApiRequest(req, res) {
   }
 }
 
-
-
-
-
 module.exports = {
-  handleApiRequest,
-  dataJuego,
+  handleApiRequest
 };
