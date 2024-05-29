@@ -6,8 +6,11 @@
   "scripts": {
     "dev": "nodemon ./src/index.js",
     "start": "concurrently \"nodemon ./src/index.js\" \"live-server front\"",
-    "build": "parcel build src/index.js"
-  },
+    "build:back": "parcel build src/index.js",
+    "build:front": "parcel build front/index.html",
+    "build": "npm run build:back && npm run build:front"
+  }
+  ,
   "keywords": [
     "control",
     "ingresos",
