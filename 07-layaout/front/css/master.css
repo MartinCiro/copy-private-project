@@ -387,12 +387,15 @@ main.catalogue {
                 }
     
                 a:is(:hover) {
-                    background: url(../images/btn-view-hover.png) no-repeat center;
+                    border: 3px solid var(--color-five);
+                    border-radius: 43%;
+                    background-color: var(--color-fourth);
+                    color: var(--color-third);
                     transform: scale(1.02) translateY(-5px);
                 }
     
                 a:is(:active) {
-                    background: url(../images/btn-view-active.png) no-repeat center;
+                    background: url(../images/btn-view-active.svg) no-repeat center;
                 }
             }
 
@@ -795,7 +798,7 @@ main.users  {
             font-size: 24px;
         }
         h4 {
-            background: url(../images/bg-role.png) no-repeat center;
+            background: url(../images/bg-role.svg) no-repeat center;
             font-size: 18px;
             border-radius: 20px;
             display: flex;
@@ -867,7 +870,7 @@ main.my-profile {
             width: 190px;
             }
         span.data-description {
-            background: url(../images/bg-description.png) no-repeat center;
+            background: url(../images/bg-description.svg) no-repeat center;
             height: 100;
             width: 300;
 
@@ -955,11 +958,11 @@ main.users {
             }
         }
         a.add:is(:hover) {
-            background: url(../images/btn-add-hover.png) no-repeat center;
+            background: url(../images/btn-add-hover.svg) no-repeat center;
             transform: scale(1.02) translateY(-4px);
         }
         a.add:is(:active) {
-            background: url(../images/btn-add-active.png) no-repeat center;
+            background: url(../images/btn-add-active.svg) no-repeat center;
         }
         article.record {
             background: url(../images/bg-article-users.svg) no-repeat center;
