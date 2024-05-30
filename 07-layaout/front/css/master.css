@@ -538,6 +538,15 @@ main.register {
         font-weight: 500;
     }
 
+    .titleRegister{
+        font-size: 48px;
+        width: 100%;
+        color: var(--color-first);
+        text-align: center;
+        font-weight: 500;
+        margin-left: 12px;
+    }
+
     section {
         form {
             display: flex;
@@ -637,20 +646,18 @@ main.register {
                     }
 
                     .mask {
-                        mask-image: url(../images/shape-photo.svg);
+                        mask-image: var(--color-second);
                         mask-repeat: no-repeat;
                         mask-position: center top;
                         object-fit: contain;
                         align-self: center;
-                        height: 200px;
-                        width: 200px;
+                        height: 161px;
                         margin-bottom: 1rem;
                     }
                     .border{
                         cursor: pointer;
                         position: absolute;
-                        left: 73px;
-                        top: -35;
+                        left: 53px;
                     }
                     #upload{
                         cursor: pointer;
@@ -727,12 +734,12 @@ main.dashboard {
                 align-items: center;
                 justify-content: center;
                 img.icon {
-                    width: 92px;
+                    width: 70px;
                 }
                 span {
                     font-style: italic;
-                    font-weight: bold;
-                    font-size: 24px;
+                    font-weight: normal;
+                    font-size: 16px;
                     color: var(--color-six)
                 }
             }
@@ -742,11 +749,24 @@ main.dashboard {
                     font-size: 24px;
                     display: flex;
                     justify-content: center;
+                    transform: translateY(30px);
                     span{
                         font-weight: 600;
                         color: var(--color-six)
                     }
                     
+            }
+            a.view{
+               background-color: var(--color-second);
+               color: var(--color-fourth);
+               width: 89px;
+               font-size: 18px;
+               justify-content: center;
+               align-items: center;
+               text-align: center;
+               border-radius: 20px;
+               font-weight: 300;
+               text-decoration: none; 
             }
             a:is(:link, :visited) {
                 position: absolute;
@@ -754,7 +774,9 @@ main.dashboard {
                 right: 20px;
             }
             a:is(:hover) {
-                background: url(../images/btn-enter-hover.svg) no-repeat center;
+                background-color: var(--color-five);
+                color: var(--color-second);
+                font-weight: 500;
                 transform: scale(1.02) translateY(-4px);
             }
         }
